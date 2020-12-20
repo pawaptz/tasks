@@ -2,12 +2,12 @@ package com.ru.msk.pp;
 
 public class PingPongWaitNotify implements PingPongParallel {
 
-    private boolean pingToPong = true;
+    private boolean ping = true;
 
     @Override
     public void ping() {
         synchronized (this) {
-            while (!pingToPong) {
+            while (!ping) {
                 try {
                     wait();
                 } catch (InterruptedException e) {
@@ -16,7 +16,7 @@ public class PingPongWaitNotify implements PingPongParallel {
                 }
             }
             System.out.println("ping");
-            pingToPong = false;
+            ping = false;
             notify();
         }
     }
@@ -24,7 +24,7 @@ public class PingPongWaitNotify implements PingPongParallel {
     @Override
     public void pong() {
         synchronized (this) {
-            while (pingToPong) {
+            while (ping) {
                 try {
                     wait();
                 } catch (InterruptedException e) {
@@ -33,7 +33,7 @@ public class PingPongWaitNotify implements PingPongParallel {
                 }
             }
             System.out.println("pong");
-            pingToPong = true;
+            ping = true;
             notify();
         }
     }

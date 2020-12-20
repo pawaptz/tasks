@@ -1,34 +1,44 @@
 package com.ru.msk.pp;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 public class PingPongBusyWait implements PingPongParallel {
 
-    private final AtomicBoolean pingToPong = new AtomicBoolean(false);
+    private volatile boolean ping = true;
 
     @Override
     public void ping() {
-        while (!pingToPong.compareAndSet(false, true)){
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException(e);
+        while (!Thread.currentThread().isInterrupted()) {
+            while (!ping) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            synchronized (this){
+                if (ping) {
+                    System.out.println("ping");
+                    ping = false;
+                }
             }
         }
-        System.out.println("ping");
     }
 
     @Override
     public void pong() {
-        while (!pingToPong.compareAndSet(true, false)){
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException(e);
+        while (!Thread.currentThread().isInterrupted()) {
+            if (ping) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            synchronized (this) {
+                if (!ping) {
+                    System.out.println("pong");
+                    ping = true;
+                }
             }
         }
-        System.out.println("pong");
     }
 }

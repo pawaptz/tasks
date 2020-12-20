@@ -22,12 +22,15 @@ public class PingPongQueue implements PingPongParallel {
     @Override
     public void ping() {
         try {
-            final Pp p = pingPongQueue.take();
-            if (p == Pp.PING) {
-                System.out.println("ping");
-                pingPongQueue.put(Pp.PONG);
-            } else {
-                pingPongQueue.put(p);
+            while (!Thread.currentThread().isInterrupted()) {
+                final Pp p = pingPongQueue.take();
+                if (p == Pp.PING) {
+                    System.out.println("ping");
+                    pingPongQueue.put(Pp.PONG);
+                    break;
+                } else {
+                    pingPongQueue.put(p);
+                }
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -38,12 +41,15 @@ public class PingPongQueue implements PingPongParallel {
     @Override
     public void pong() {
         try {
-            final Pp p = pingPongQueue.take();
-            if (p == Pp.PONG) {
-                System.out.println("pong");
-                pingPongQueue.put(Pp.PING);
-            } else {
-                pingPongQueue.put(p);
+            while (!Thread.currentThread().isInterrupted()) {
+                final Pp p = pingPongQueue.take();
+                if (p == Pp.PONG) {
+                    System.out.println("pong");
+                    pingPongQueue.put(Pp.PING);
+                    break;
+                } else {
+                    pingPongQueue.put(p);
+                }
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
